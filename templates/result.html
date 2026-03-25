@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block title %}Your Sticker — AI Animated Sticker Generator{% endblock %}
+{% block content %}
+
+<section class="result-hero">
+  <div class="result-badge success"><i class="fa-solid fa-circle-check"></i> Sticker Ready!</div>
+  <h1 class="result-title">Your sticker is <span class="gradient-text">alive!</span></h1>
+</section>
+
+<div class="result-layout">
+  <div class="sticker-preview-card">
+    <div class="sticker-frame">
+      <img src="/{{ sticker['file_path'] }}" alt="Animated Sticker" class="sticker-img animated-in">
+    </div>
+    <div class="sticker-meta">
+      <div class="meta-row">
+        <span class="meta-badge style-badge">{{ sticker['style']|capitalize }}</span>
+        <span class="meta-badge anim-badge">{{ sticker['animation_type']|capitalize }}</span>
+        <span class="meta-badge mood-badge">{{ sticker['mood']|capitalize }}</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="result-info">
+    <div class="info-card">
+      <h3><i class="fa-solid fa-pen-sparkle"></i> Prompt</h3>
+      <p class="prompt-text">{{ sticker['prompt'] }}</p>
+      {% if sticker['enhanced_prompt'] and sticker['enhanced_prompt'] != sticker['prompt'] %}
+      <h3><i class="fa-solid fa-wand-magic-sparkles"></i> AI Enhanced</h3>
+      <p class="enhanced-text">{{ sticker['enhanced_prompt'] }}</p>
+      {% endif %}
+    </div>
+
+    {% if sticker['hashtags'] %}
+    <div class="info-card">
+      <h3><i class="fa-solid fa-hashtag"></i> Hashtags</h3>
+      <div class="hashtag-cloud">
+        {% for tag in sticker['hashtags'].split() %}
+        <span class="hashtag">{{ tag }}</span>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+
+    <div class="download-card">
+      <h3><i class="fa-solid fa-download"></i> Download</h3>
+      <div class="download-buttons">
+        <a href="/download/{{ sticker['id'] }}/gif" class="btn btn-download">
+          <i class="fa-solid fa-film"></i> Download GIF
+        </a>
+        <a href="/download/{{ sticker['id'] }}/webp" class="btn btn-download btn-webp">
+          <i class="fa-brands fa-whatsapp"></i> Download WebP
+        </a>
+      </div>
+    </div>
+
+    <div class="action-row">
+      <a href="/" class="btn btn-outline">
+        <i class="fa-solid fa-plus"></i> Create Another
+      </a>
+      <a href="/gallery" class="btn btn-outline">
+        <i class="fa-solid fa-images"></i> View Gallery
+      </a>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,10 @@
+flask
+flask-sqlalchemy
+gunicorn
+groq
+pillow
+imageio
+psycopg2-binary
+email_validator
+imageio
+numpy

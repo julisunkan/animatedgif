@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>{% block title %}AI Animated Sticker Generator{% endblock %}</title>
+  <meta name="description" content="Create amazing AI-powered animated stickers instantly!">
+  <meta name="theme-color" content="#7c3aed">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="icon" href="/static/icons/icon-192.png">
+  <link rel="apple-touch-icon" href="/static/icons/icon-192.png">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+
+<div class="app-shell">
+
+  <header class="app-header">
+    <a class="brand" href="/">
+      <span class="brand-icon">✨</span>
+      <span class="brand-text">Sticker<span class="brand-ai">AI</span></span>
+    </a>
+    <div class="header-actions">
+      <span class="header-badge">Beta</span>
+    </div>
+  </header>
+
+  <main class="app-content">
+    {% block content %}{% endblock %}
+  </main>
+
+  <nav class="bottom-nav">
+    <a href="/" class="bottom-nav-item {% if request.endpoint == 'index' %}active{% endif %}">
+      <div class="nav-icon-wrap">
+        <i class="fa-solid fa-house"></i>
+      </div>
+      <span class="nav-label">Home</span>
+    </a>
+    <a href="/" class="bottom-nav-fab" aria-label="Create sticker">
+      <div class="fab-inner">
+        <i class="fa-solid fa-wand-magic-sparkles"></i>
+      </div>
+    </a>
+    <a href="/gallery" class="bottom-nav-item {% if request.endpoint == 'gallery' %}active{% endif %}">
+      <div class="nav-icon-wrap">
+        <i class="fa-solid fa-images"></i>
+      </div>
+      <span class="nav-label">Gallery</span>
+    </a>
+  </nav>
+
+</div>
+
+<script src="/static/js/app.js"></script>
+</body>
+</html>

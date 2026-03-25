@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+{% block title %}Gallery — AI Animated Sticker Generator{% endblock %}
+{% block content %}
+
+<section class="page-header">
+  <h1><i class="fa-solid fa-images"></i> Sticker <span class="gradient-text">Gallery</span></h1>
+  <p>Browse, like and download community stickers</p>
+</section>
+
+{% if trending %}
+<section class="trending-section">
+  <h2 class="section-title"><i class="fa-solid fa-fire"></i> Trending Now</h2>
+  <div class="trending-row">
+    {% for s in trending %}
+    <div class="trending-card">
+      <img src="/{{ s['file_path'] }}" alt="sticker" class="trending-img">
+      <div class="trending-meta">
+        <span class="meta-badge">{{ s['style'] }}</span>
+        <span><i class="fa-solid fa-heart"></i> {{ s['likes'] }}</span>
+        <span><i class="fa-solid fa-eye"></i> {{ s['views'] }}</span>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+
+<section class="filter-bar">
+  <form method="GET" action="/gallery" class="filter-form">
+    <div class="search-wrap">
+      <i class="fa-solid fa-search search-icon"></i>
+      <input type="text" name="search" value="{{ search }}" placeholder="Search stickers..."
+             class="form-input search-input">
+    </div>
+    <select name="style" class="form-select">
+      <option value="">All Styles</option>
+      {% for s in ['cartoon','anime','emoji','3d','pixel'] %}
+      <option value="{{ s }}" {% if style == s %}selected{% endif %}>{{ s|capitalize }}</option>
+      {% endfor %}
+    </select>
+    <select name="mood" class="form-select">
+      <option value="">All Moods</option>
+      {% for m in ['funny','angry','love','sad'] %}
+      <option value="{{ m }}" {% if mood == m %}selected{% endif %}>{{ m|capitalize }}</option>
+      {% endfor %}
+    </select>
+    <select name="sort" class="form-select">
+      <option value="new" {% if sort == 'new' %}selected{% endif %}>Newest</option>
+      <option value="popular" {% if sort == 'popular' %}selected{% endif %}>Popular</option>
+      <option value="likes" {% if sort == 'likes' %}selected{% endif %}>Most Liked</option>
+      <option value="trending" {% if sort == 'trending' %}selected{% endif %}>Trending</option>
+    </select>
+    <button type="submit" class="btn btn-filter">Filter</button>
+    <a href="/gallery" class="btn btn-outline-sm">Reset</a>
+  </form>
+</section>
+
+<form method="POST" action="/export-pack" id="packForm">
+<div class="gallery-toolbar">
+  <span class="gallery-count">{{ stickers|length }} sticker{% if stickers|length != 1 %}s{% endif %}</span>
+  <div class="toolbar-actions">
+    <button type="button" class="btn btn-outline-sm" id="selectAllBtn">Select All</button>
+    <button type="submit" class="btn btn-pack">
+      <i class="fa-solid fa-file-zipper"></i> Export Pack
+    </button>
+  </div>
+</div>
+
+{% if stickers %}
+<div class="gallery-grid">
+  {% for s in stickers %}
+  <div class="gallery-card" id="card-{{ s['id'] }}">
+    <input type="checkbox" name="sticker_ids" value="{{ s['id'] }}" class="card-check" id="chk-{{ s['id'] }}">
+    <label for="chk-{{ s['id'] }}" class="check-label"><i class="fa-solid fa-check"></i></label>
+
+    <a href="/result/{{ s['id'] }}">
+      <div class="card-img-wrap">
+        <img src="/{{ s['file_path'] }}" alt="{{ s['prompt'] }}" class="card-img" loading="lazy">
+      </div>
+    </a>
+
+    <div class="card-body">
+      <p class="card-prompt">{{ s['prompt'][:40] }}{% if s['prompt']|length > 40 %}…{% endif %}</p>
+      <div class="card-badges">
+        <span class="meta-badge">{{ s['style'] }}</span>
+        <span class="meta-badge mood-{{ s['mood'] }}">{{ s['mood'] }}</span>
+      </div>
+    </div>
+
+    <div class="card-actions">
+      <button class="btn-like {% if s['likes'] > 0 %}liked{% endif %}"
+              onclick="likeSticker({{ s['id'] }}, this)" data-id="{{ s['id'] }}">
+        <i class="fa-solid fa-heart"></i>
+        <span class="like-count">{{ s['likes'] }}</span>
+      </button>
+      <span class="view-count"><i class="fa-regular fa-eye"></i> {{ s['views'] }}</span>
+      <a href="/download/{{ s['id'] }}/gif" class="btn-dl" title="Download GIF">
+        <i class="fa-solid fa-download"></i>
+      </a>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="empty-state">
+  <div class="empty-icon">🎨</div>
+  <h3>No stickers yet!</h3>
+  <p>Be the first to create one.</p>
+  <a href="/" class="btn btn-generate">Create Now</a>
+</div>
+{% endif %}
+</form>
+
+<script>
+function likeSticker(id, btn) {
+  fetch('/like/' + id, { method: 'POST' })
+    .then(r => r.json())
+    .then(data => {
+      btn.querySelector('.like-count').textContent = data.likes;
+      btn.classList.add('liked');
+    });
+}
+
+document.getElementById('selectAllBtn').addEventListener('click', () => {
+  const checks = document.querySelectorAll('.card-check');
+  const allChecked = Array.from(checks).every(c => c.checked);
+  checks.forEach(c => {
+    c.checked = !allChecked;
+    c.closest('.gallery-card').classList.toggle('selected', c.checked);
+  });
+});
+
+document.querySelectorAll('.card-check').forEach(c => {
+  c.addEventListener('change', () => {
+    c.closest('.gallery-card').classList.toggle('selected', c.checked);
+  });
+});
+</script>
+{% endblock %}

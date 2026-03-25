@@ -1,0 +1,145 @@
+{% extends "base.html" %}
+{% block title %}Create Sticker — AI Animated Sticker Generator{% endblock %}
+{% block content %}
+
+<section class="hero">
+  <div class="hero-badge"><span class="pulse-dot"></span>AI-POWERED &bull; INSTANT GENERATION</div>
+  <h1 class="hero-title">Create <span class="gradient-text">Animated</span> Stickers</h1>
+  <p class="hero-sub">Type your idea — AI generates a <strong>real image</strong>, then animates it into a sticker.</p>
+  <div class="hero-chips">
+    <span class="chip"><i class="fa-solid fa-image"></i> Real AI Images</span>
+    <span class="chip"><i class="fa-solid fa-film"></i> 5 Animations</span>
+    <span class="chip"><i class="fa-solid fa-palette"></i> 5 Styles</span>
+    <span class="chip"><i class="fa-solid fa-download"></i> GIF &amp; WebP</span>
+  </div>
+</section>
+
+{% if not has_image_key %}
+<div class="alert alert-info">
+  <i class="fa-solid fa-circle-info"></i>
+  <span>No image API key set — generating stylized art stickers. <a href="/admin">Add a free HuggingFace key</a> in Admin for <strong>real AI photos</strong>.</span>
+</div>
+{% endif %}
+
+{% if error %}
+<div class="alert alert-error"><i class="fa-solid fa-circle-exclamation"></i> {{ error }}</div>
+{% endif %}
+
+<div class="generator-card">
+  <form method="POST" action="/" id="stickerForm">
+
+    <div class="form-group">
+      <label class="form-label"><i class="fa-solid fa-pen-to-square"></i> Your Prompt</label>
+      <div class="prompt-row">
+        <textarea name="prompt" id="promptInput" class="form-textarea"
+                  placeholder="e.g. A dancing cat with sunglasses..." rows="3" required></textarea>
+        <button type="button" class="btn btn-mic" id="micBtn" title="Voice Input">
+          <i class="fa-solid fa-microphone"></i>
+        </button>
+      </div>
+      <p class="form-hint">AI will enhance your prompt automatically.</p>
+    </div>
+
+    <div class="options-grid">
+      <div class="form-group">
+        <label class="form-label"><i class="fa-solid fa-palette"></i> Style</label>
+        <div class="option-pills" id="styleOptions">
+          {% for s, icon in [('cartoon','🎨'),('anime','⭐'),('emoji','😂'),('3d','💎'),('pixel','👾')] %}
+          <input type="radio" name="style" id="style_{{ s }}" value="{{ s }}"
+                 {% if loop.first %}checked{% endif %} hidden>
+          <label for="style_{{ s }}" class="pill">{{ icon }} {{ s|capitalize }}</label>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label"><i class="fa-solid fa-film"></i> Animation</label>
+        <div class="option-pills" id="animOptions">
+          {% for a, icon in [('bounce','⬆️'),('spin','🔄'),('shake','📳'),('zoom','🔍'),('dance','💃')] %}
+          <input type="radio" name="animation" id="anim_{{ a }}" value="{{ a }}"
+                 {% if loop.first %}checked{% endif %} hidden>
+          <label for="anim_{{ a }}" class="pill">{{ icon }} {{ a|capitalize }}</label>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label"><i class="fa-solid fa-face-smile"></i> Mood</label>
+        <div class="option-pills" id="moodOptions">
+          {% for m, icon in [('funny','😂'),('angry','😡'),('love','❤️'),('sad','😢')] %}
+          <input type="radio" name="mood" id="mood_{{ m }}" value="{{ m }}"
+                 {% if loop.first %}checked{% endif %} hidden>
+          <label for="mood_{{ m }}" class="pill">{{ icon }} {{ m|capitalize }}</label>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+    <button type="submit" class="btn btn-generate" id="generateBtn">
+      <span class="btn-inner">
+        <i class="fa-solid fa-wand-magic-sparkles"></i>
+        <span class="btn-text">Generate Sticker</span>
+      </span>
+      <span class="btn-loading" style="display:none">
+        <i class="fa-solid fa-spinner fa-spin"></i> <span id="loadingMsg">Generating real image...</span>
+      </span>
+    </button>
+  </form>
+</div>
+
+<div id="voiceModal" class="modal" style="display:none">
+  <div class="modal-box">
+    <div class="modal-icon pulse-ring"><i class="fa-solid fa-microphone"></i></div>
+    <p>Listening... speak your sticker idea!</p>
+    <button class="btn btn-danger" id="stopMic">Stop Recording</button>
+  </div>
+</div>
+
+<script>
+const form = document.getElementById('stickerForm');
+form.addEventListener('submit', () => {
+  document.querySelector('.btn-inner').style.display = 'none';
+  document.querySelector('.btn-loading').style.display = 'flex';
+  document.getElementById('generateBtn').disabled = true;
+  const msgs = [
+    'Generating real image...',
+    'AI painting your sticker...',
+    'Adding animation frames...',
+    'Rendering GIF...',
+    'Almost ready...'
+  ];
+  let mi = 0;
+  const el = document.getElementById('loadingMsg');
+  setInterval(() => { mi = (mi + 1) % msgs.length; el.textContent = msgs[mi]; }, 4000);
+});
+
+
+const micBtn = document.getElementById('micBtn');
+const modal = document.getElementById('voiceModal');
+const stopBtn = document.getElementById('stopMic');
+let recognition = null;
+
+micBtn.addEventListener('click', () => {
+  if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+    alert('Speech recognition not supported in this browser.');
+    return;
+  }
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  recognition = new SR();
+  recognition.lang = 'en-US';
+  recognition.interimResults = false;
+  recognition.onresult = (e) => {
+    document.getElementById('promptInput').value = e.results[0][0].transcript;
+    modal.style.display = 'none';
+  };
+  recognition.onerror = () => { modal.style.display = 'none'; };
+  recognition.onend = () => { modal.style.display = 'none'; };
+  recognition.start();
+  modal.style.display = 'flex';
+});
+stopBtn.addEventListener('click', () => {
+  if (recognition) recognition.stop();
+  modal.style.display = 'none';
+});
+</script>
+{% endblock %}

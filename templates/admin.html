@@ -1,0 +1,162 @@
+{% extends "base.html" %}
+{% block title %}Admin — AI Animated Sticker Generator{% endblock %}
+{% block content %}
+
+<section class="page-header">
+  <h1><i class="fa-solid fa-gear"></i> Admin <span class="gradient-text">Panel</span></h1>
+  <p>Manage your AI Sticker Generator</p>
+</section>
+
+{% if message %}
+<div class="alert alert-{{ msg_type }}">
+  <i class="fa-solid fa-{% if msg_type == 'success' %}circle-check{% else %}circle-exclamation{% endif %}"></i>
+  {{ message }}
+</div>
+{% endif %}
+
+<div class="admin-stats">
+  <div class="stat-card">
+    <div class="stat-icon"><i class="fa-solid fa-images"></i></div>
+    <div class="stat-value">{{ total }}</div>
+    <div class="stat-label">Total Stickers</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon"><i class="fa-solid fa-heart"></i></div>
+    <div class="stat-value">{{ total_likes }}</div>
+    <div class="stat-label">Total Likes</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon"><i class="fa-solid fa-eye"></i></div>
+    <div class="stat-value">{{ total_views }}</div>
+    <div class="stat-label">Total Views</div>
+  </div>
+</div>
+
+<div class="admin-grid">
+  <div class="admin-card">
+    <h2><i class="fa-solid fa-key"></i> API Settings</h2>
+    <form method="POST" action="/admin">
+      <input type="hidden" name="action" value="save_keys">
+
+      <div class="form-group">
+        <label class="form-label"><i class="fa-solid fa-bolt"></i> Groq API Key <span class="badge-opt">Optional</span></label>
+        {% if masked_groq %}
+        <p class="masked-key">Current: {{ masked_groq }}</p>
+        {% endif %}
+        <input type="password" name="groq_api_key" class="form-input"
+               placeholder="gsk_...">
+        <p class="form-hint">Enables AI prompt enhancement &amp; hashtags. Free at <a href="https://console.groq.com" target="_blank">console.groq.com</a></p>
+      </div>
+
+      <div class="api-divider"></div>
+
+      <div class="form-group">
+        <label class="form-label"><i class="fa-solid fa-image"></i> Image Generation API <span class="badge-req">Required for Real Images</span></label>
+        {% if masked_img %}
+        <p class="masked-key">Current key: {{ masked_img }}</p>
+        {% endif %}
+        <select name="image_api_type" class="form-select" style="margin-bottom:10px">
+          <option value="huggingface" {% if img_type == 'huggingface' %}selected{% endif %}>
+            HuggingFace (Free token — recommended)
+          </option>
+          <option value="together" {% if img_type == 'together' %}selected{% endif %}>
+            Together.ai (Free credits available)
+          </option>
+          <option value="pollinations" {% if img_type == 'pollinations' %}selected{% endif %}>
+            Pollinations.ai (Paid key)
+          </option>
+        </select>
+        <input type="password" name="image_api_key" class="form-input"
+               placeholder="Paste your API key here...">
+        <div class="api-help">
+          <p class="form-hint">
+            <strong>HuggingFace (Free):</strong> Sign up free at
+            <a href="https://huggingface.co/settings/tokens" target="_blank">huggingface.co</a>
+            → Settings → Tokens → New token (read access). Uses FLUX.1-schnell model.
+          </p>
+          <p class="form-hint" style="margin-top:6px">
+            <strong>Together.ai:</strong> Free credits on signup at
+            <a href="https://api.together.xyz" target="_blank">api.together.xyz</a>.
+          </p>
+        </div>
+      </div>
+
+      <button type="submit" class="btn btn-generate">
+        <i class="fa-solid fa-save"></i> Save Settings
+      </button>
+    </form>
+  </div>
+
+  <div class="admin-card">
+    <h2><i class="fa-solid fa-chart-bar"></i> Style Analytics</h2>
+    <div class="analytics-list">
+      {% set styles = ['cartoon','anime','emoji','3d','pixel'] %}
+      {% for style in styles %}
+      {% set count = stickers | selectattr('style', 'equalto', style) | list | length %}
+      {% if count > 0 %}
+      <div class="analytics-row">
+        <span class="analytics-label">{{ style|capitalize }}</span>
+        <div class="analytics-bar-wrap">
+          <div class="analytics-bar" style="width: {{ (count / [total,1]|max * 100)|int }}%"></div>
+        </div>
+        <span class="analytics-count">{{ count }}</span>
+      </div>
+      {% endif %}
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+<div class="admin-card full-width">
+  <h2><i class="fa-solid fa-list"></i> All Stickers ({{ total }})</h2>
+  {% if stickers %}
+  <div class="admin-table-wrap">
+    <table class="admin-table">
+      <thead>
+        <tr>
+          <th>Preview</th>
+          <th>Prompt</th>
+          <th>Style</th>
+          <th>Animation</th>
+          <th>Mood</th>
+          <th>Likes</th>
+          <th>Views</th>
+          <th>Created</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for s in stickers %}
+        <tr>
+          <td><img src="/{{ s['file_path'] }}" class="table-thumb" alt="sticker"></td>
+          <td class="td-prompt">{{ s['prompt'][:30] }}{% if s['prompt']|length > 30 %}…{% endif %}</td>
+          <td><span class="meta-badge">{{ s['style'] }}</span></td>
+          <td>{{ s['animation_type'] }}</td>
+          <td><span class="meta-badge mood-{{ s['mood'] }}">{{ s['mood'] }}</span></td>
+          <td>{{ s['likes'] }}</td>
+          <td>{{ s['views'] }}</td>
+          <td class="td-date">{{ s['created_at'][:10] }}</td>
+          <td>
+            <form method="POST" action="/admin"
+                  onsubmit="return confirm('Delete this sticker?')">
+              <input type="hidden" name="action" value="delete_sticker">
+              <input type="hidden" name="sticker_id" value="{{ s['id'] }}">
+              <button type="submit" class="btn btn-danger-sm">
+                <i class="fa-solid fa-trash"></i>
+              </button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="empty-state">
+    <div class="empty-icon">📭</div>
+    <p>No stickers yet. <a href="/">Create your first one!</a></p>
+  </div>
+  {% endif %}
+</div>
+
+{% endblock %}
