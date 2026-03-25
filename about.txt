@@ -1,0 +1,42 @@
+DESCRIPTION
+-----------
+AI Animated Sticker Generator is a Progressive Web App (PWA) that lets you create
+custom animated stickers instantly using artificial intelligence. Type a prompt, pick
+a style and mood, and the app generates a unique animated sticker in seconds — no
+design skills required. Stickers are exported as GIF or WhatsApp-ready WebP files.
+The app works with or without an API key: without one it generates stylized art
+stickers using built-in Pillow rendering; with a free HuggingFace or Together.ai key
+it fetches real AI-generated images. Prompts are optionally enhanced by Groq's
+LLaMA 3.3 model for richer results. A public gallery lets users browse, like,
+search, and download community-created stickers, with a trending algorithm surfacing
+the most popular ones. The full PWA setup means it can be installed on mobile devices
+and used offline.
+
+
+FEATURES
+--------
+- AI image generation via HuggingFace (FLUX.1-schnell), Together.ai, or Pollinations
+- Built-in Pillow fallback art generator — works with zero API keys
+- Groq LLaMA 3.3 prompt enhancement and hashtag generation
+- 5 sticker styles: Cartoon, Anime, Emoji, 3D, Pixel
+- 5 animation types: Bounce, Spin, Shake, Zoom, Dance
+- 4 moods: Funny, Angry, Love, Sad
+- Animated GIF export (14 frames, optimised timing)
+- WhatsApp-ready animated WebP export
+- Sticker pack ZIP export (bulk download)
+- Public gallery with likes, views, search, and filters
+- Trending algorithm (weighted likes + views)
+- Voice prompt input via Web Speech API
+- Dark mode UI with mobile-first responsive design
+- Progressive Web App: installable, offline-capable, service worker cached
+- Admin panel for API key management, analytics, and sticker moderation
+
+
+KEYWORDS
+--------
+AI sticker generator, animated stickers, GIF maker, WebP stickers, WhatsApp stickers,
+AI image generation, FLUX model, HuggingFace, Groq, LLaMA, prompt enhancement,
+Flask, Python, PWA, progressive web app, cartoon sticker, anime sticker, emoji maker,
+pixel art, 3D sticker, sticker animation, bounce animation, spin animation,
+AI art generator, sticker creator, free sticker maker, voice input, sticker gallery,
+sticker pack, ZIP export, dark mode, mobile app, offline app, service worker
