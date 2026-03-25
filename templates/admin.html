@@ -128,7 +128,7 @@
       <tbody>
         {% for s in stickers %}
         <tr>
-          <td><img src="/{{ s['file_path'] }}" class="table-thumb" alt="sticker"></td>
+          <td><img src="{{ url_for('serve_sticker_gif', sticker_id=s['id']) }}" class="table-thumb" alt="sticker"></td>
           <td class="td-prompt">{{ s['prompt'][:30] }}{% if s['prompt']|length > 30 %}…{% endif %}</td>
           <td><span class="meta-badge">{{ s['style'] }}</span></td>
           <td>{{ s['animation_type'] }}</td>

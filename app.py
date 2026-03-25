@@ -610,6 +610,24 @@ def create_sticker(prompt, style="cartoon", anim_type="bounce", mood="funny"):
     return gif_path, webp_path, used_real
 
 
+@app.route("/sticker/<int:sticker_id>/gif")
+def serve_sticker_gif(sticker_id):
+    db = get_db()
+    sticker = db.execute("SELECT file_path FROM stickers WHERE id = ?", (sticker_id,)).fetchone()
+    if not sticker or not sticker["file_path"] or not os.path.exists(sticker["file_path"]):
+        return redirect(url_for("index"))
+    return send_file(sticker["file_path"], mimetype="image/gif")
+
+
+@app.route("/sticker/<int:sticker_id>/webp")
+def serve_sticker_webp(sticker_id):
+    db = get_db()
+    sticker = db.execute("SELECT webp_path FROM stickers WHERE id = ?", (sticker_id,)).fetchone()
+    if not sticker or not sticker["webp_path"] or not os.path.exists(sticker["webp_path"]):
+        return redirect(url_for("index"))
+    return send_file(sticker["webp_path"], mimetype="image/webp")
+
+
 @app.route("/service-worker.js")
 def service_worker():
     return send_from_directory("static", "service-worker.js", mimetype="application/javascript")

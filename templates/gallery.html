@@ -13,7 +13,7 @@
   <div class="trending-row">
     {% for s in trending %}
     <div class="trending-card">
-      <img src="/{{ s['file_path'] }}" alt="sticker" class="trending-img">
+      <img src="{{ url_for('serve_sticker_gif', sticker_id=s['id']) }}" alt="sticker" class="trending-img">
       <div class="trending-meta">
         <span class="meta-badge">{{ s['style'] }}</span>
         <span><i class="fa-solid fa-heart"></i> {{ s['likes'] }}</span>
@@ -75,7 +75,7 @@
 
     <a href="/result/{{ s['id'] }}">
       <div class="card-img-wrap">
-        <img src="/{{ s['file_path'] }}" alt="{{ s['prompt'] }}" class="card-img" loading="lazy">
+        <img src="{{ url_for('serve_sticker_gif', sticker_id=s['id']) }}" alt="{{ s['prompt'] }}" class="card-img" loading="lazy">
       </div>
     </a>
 

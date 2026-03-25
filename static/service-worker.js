@@ -1,4 +1,4 @@
-const CACHE_NAME = 'sticker-ai-v1';
+const CACHE_NAME = 'sticker-ai-v2';
 const STATIC_ASSETS = [
   '/',
   '/static/css/style.css',
@@ -32,8 +32,8 @@ self.addEventListener('fetch', (e) => {
     return;
   }
 
-  // Sticker images: cache-first
-  if (url.pathname.startsWith('/static/stickers/') || url.pathname.startsWith('/static/webp/')) {
+  // Sticker images served via server-side routes: cache-first
+  if (url.pathname.startsWith('/sticker/')) {
     e.respondWith(
       caches.match(e.request).then(cached => {
         if (cached) return cached;

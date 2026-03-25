@@ -10,7 +10,7 @@
 <div class="result-layout">
   <div class="sticker-preview-card">
     <div class="sticker-frame">
-      <img src="/{{ sticker['file_path'] }}" alt="Animated Sticker" class="sticker-img animated-in">
+      <img src="{{ url_for('serve_sticker_gif', sticker_id=sticker['id']) }}" alt="Animated Sticker" class="sticker-img animated-in">
     </div>
     <div class="sticker-meta">
       <div class="meta-row">
